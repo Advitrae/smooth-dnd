@@ -78,13 +78,22 @@ function getGhostParent() {
 }
 
 function getGhostElement(wrapperElement: HTMLElement, { x, y }: Position, container: IContainer, cursor: string): GhostInfo {
-  const wrapperRect = wrapperElement.getBoundingClientRect();
-  const { left, top, right, bottom } = wrapperRect;
+  const { left, top, right, bottom } = wrapperElement.getBoundingClientRect();
+  const midX = left + (right - left) / 2;
+  const midY = top + (bottom - top) / 2;
 
-  const wrapperVisibleRect = Utils.getIntersection(container.layout.getContainerRectangles().visibleRect, wrapperRect);
+  /**
+   * Remove wrapper visible rect to make sure positioning the ghost element is relative to drag element.
+   * This causes the ghost elements offset to be incorrect. See changes made:
+   * https://github.com/kutlugsahin/smooth-dnd/commit/68853ecab812ac7a7d9ebf4288cf1ed520b3a2eb
+   */
+  // const wrapperRect = wrapperElement.getBoundingClientRect();
+  // const { left, top, right, bottom } = wrapperRect;
+  // const wrapperVisibleRect = Utils.getIntersection(container.layout.getContainerRectangles().visibleRect, wrapperRect);
 
-  const midX = wrapperVisibleRect.left + (wrapperVisibleRect.right - wrapperVisibleRect.left) / 2;
-  const midY = wrapperVisibleRect.top + (wrapperVisibleRect.bottom - wrapperVisibleRect.top) / 2;
+  // const midX = wrapperVisibleRect.left + (wrapperVisibleRect.right - wrapperVisibleRect.left) / 2;
+  // const midY = wrapperVisibleRect.top + (wrapperVisibleRect.bottom - wrapperVisibleRect.top) / 2;
+
   const ghost: HTMLElement = wrapperElement.cloneNode(true) as HTMLElement;
   ghost.style.zIndex = '1000';
   ghost.style.boxSizing = 'border-box';
@@ -476,7 +485,7 @@ function onMouseUp() {
     handleMissedDragFrame();
     dropAnimationStarted = true;
     handleDropAnimation(() => {
-      isDragging = false; // 
+      isDragging = false; //
       fireOnDragStartEnd(false);
       const containers = dragListeningContainers || [];
 
